@@ -1,15 +1,17 @@
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 class Student {
-    int id;
-    String name;
-    int age;
-    String course;
-    double marks;
+
+    private int id;
+    private String name;
+    private int age;
+    private String course;
+    private double marks;
 
     // Constructor
-    Student(int id, String name, int age, String course, double marks) {
+    public Student(int id, String name, int age, String course, double marks) {
         this.id = id;
         this.name = name;
         this.age = age;
@@ -17,167 +19,342 @@ class Student {
         this.marks = marks;
     }
 
+    // Getter
+    public int getId() {
+        return id;
+    }
+
+    // Setters
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public void setCourse(String course) {
+        this.course = course;
+    }
+
+    public void setMarks(double marks) {
+        this.marks = marks;
+    }
+
     // Display Student Details
-    void displayStudent() {
-        System.out.println("ID: " + id);
-        System.out.println("Name: " + name);
-        System.out.println("Age: " + age);
-        System.out.println("Course: " + course);
-        System.out.println("Marks: " + marks);
-        System.out.println("---------------------------");
+    public void displayStudent() {
+        System.out.println("----------------------------------");
+        System.out.println("Student ID : " + id);
+        System.out.println("Name       : " + name);
+        System.out.println("Age        : " + age);
+        System.out.println("Course     : " + course);
+        System.out.println("Marks      : " + marks);
+        System.out.println("----------------------------------");
     }
 }
 
 public class Main {
 
-    public static void main(String[] args) {
+    static Scanner sc = new Scanner(System.in);
+    static ArrayList<Student> students = new ArrayList<>();
 
-        Scanner sc = new Scanner(System.in);
-        ArrayList<Student> students = new ArrayList<>();
+    public static void main(String[] args) {
 
         int choice;
 
         do {
-            System.out.println("\n===== Student Management System =====");
+
+            System.out.println("\n===== STUDENT MANAGEMENT SYSTEM =====");
             System.out.println("1. Add Student");
             System.out.println("2. View Students");
             System.out.println("3. Search Student");
             System.out.println("4. Update Student");
             System.out.println("5. Delete Student");
             System.out.println("6. Exit");
-            System.out.print("Enter your choice: ");
 
-            choice = sc.nextInt();
+            choice = getValidatedInt("Enter your choice: ");
 
             switch (choice) {
 
-                // Add Student
                 case 1:
-                    System.out.print("Enter Student ID: ");
-                    int id = sc.nextInt();
-
-                    sc.nextLine(); // consume newline
-
-                    System.out.print("Enter Name: ");
-                    String name = sc.nextLine();
-
-                    System.out.print("Enter Age: ");
-                    int age = sc.nextInt();
-
-                    sc.nextLine();
-
-                    System.out.print("Enter Course: ");
-                    String course = sc.nextLine();
-
-                    System.out.print("Enter Marks: ");
-                    double marks = sc.nextDouble();
-
-                    students.add(new Student(id, name, age, course, marks));
-
-                    System.out.println("Student Added Successfully!");
+                    addStudent();
                     break;
 
-                // View Students
                 case 2:
-                    if (students.isEmpty()) {
-                        System.out.println("No student records found.");
-                    } else {
-                        System.out.println("\n--- Student Records ---");
-                        for (Student s : students) {
-                            s.displayStudent();
-                        }
-                    }
+                    viewStudents();
                     break;
 
-                // Search Student
                 case 3:
-                    System.out.print("Enter Student ID to Search: ");
-                    int searchId = sc.nextInt();
-
-                    boolean found = false;
-
-                    for (Student s : students) {
-                        if (s.id == searchId) {
-                            s.displayStudent();
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (!found) {
-                        System.out.println("Student not found.");
-                    }
+                    searchStudent();
                     break;
 
-                // Update Student
                 case 4:
-                    System.out.print("Enter Student ID to Update: ");
-                    int updateId = sc.nextInt();
-
-                    boolean updated = false;
-
-                    for (Student s : students) {
-                        if (s.id == updateId) {
-
-                            sc.nextLine();
-
-                            System.out.print("Enter New Name: ");
-                            s.name = sc.nextLine();
-
-                            System.out.print("Enter New Age: ");
-                            s.age = sc.nextInt();
-
-                            sc.nextLine();
-
-                            System.out.print("Enter New Course: ");
-                            s.course = sc.nextLine();
-
-                            System.out.print("Enter New Marks: ");
-                            s.marks = sc.nextDouble();
-
-                            System.out.println("Student Updated Successfully!");
-                            updated = true;
-                            break;
-                        }
-                    }
-
-                    if (!updated) {
-                        System.out.println("Student not found.");
-                    }
+                    updateStudent();
                     break;
 
-                // Delete Student
                 case 5:
-                    System.out.print("Enter Student ID to Delete: ");
-                    int deleteId = sc.nextInt();
-
-                    boolean deleted = false;
-
-                    for (Student s : students) {
-                        if (s.id == deleteId) {
-                            students.remove(s);
-                            System.out.println("Student Deleted Successfully!");
-                            deleted = true;
-                            break;
-                        }
-                    }
-
-                    if (!deleted) {
-                        System.out.println("Student not found.");
-                    }
+                    deleteStudent();
                     break;
 
-                // Exit
                 case 6:
-                    System.out.println("Exiting Program...");
+                    System.out.println("Thank You for Using the System!");
                     break;
 
                 default:
-                    System.out.println("Invalid Choice. Try Again.");
+                    System.out.println("Invalid Choice! Please Try Again.");
             }
 
         } while (choice != 6);
 
         sc.close();
+    }
+
+    // ================= ADD STUDENT =================
+
+    public static void addStudent() {
+
+        int id = getValidatedInt("Enter Student ID: ");
+
+        // Duplicate ID Validation
+        for (Student s : students) {
+            if (s.getId() == id) {
+                System.out.println("Student ID Already Exists!");
+                return;
+            }
+        }
+
+        sc.nextLine(); // Clear Buffer
+
+        String name;
+
+        while (true) {
+
+            System.out.print("Enter Name: ");
+            name = sc.nextLine();
+
+            if (name.matches("[a-zA-Z ]+")) {
+                break;
+            } else {
+                System.out.println("Invalid Name! Only Alphabets Allowed.");
+            }
+        }
+
+        int age;
+
+        while (true) {
+
+            age = getValidatedInt("Enter Age: ");
+
+            if (age >= 5 && age <= 100) {
+                break;
+            } else {
+                System.out.println("Age Must Be Between 5 and 100.");
+            }
+        }
+
+        sc.nextLine(); // Clear Buffer
+
+        System.out.print("Enter Course: ");
+        String course = sc.nextLine();
+
+        double marks;
+
+        while (true) {
+
+            marks = getValidatedDouble("Enter Marks: ");
+
+            if (marks >= 0 && marks <= 100) {
+                break;
+            } else {
+                System.out.println("Marks Must Be Between 0 and 100.");
+            }
+        }
+
+        students.add(new Student(id, name, age, course, marks));
+
+        System.out.println("Student Added Successfully!");
+    }
+
+    // ================= VIEW STUDENTS =================
+
+    public static void viewStudents() {
+
+        if (students.isEmpty()) {
+            System.out.println("No Student Records Found.");
+            return;
+        }
+
+        System.out.println("\n===== STUDENT RECORDS =====");
+
+        for (Student s : students) {
+            s.displayStudent();
+        }
+    }
+
+    // ================= SEARCH STUDENT =================
+
+    public static void searchStudent() {
+
+        int searchId = getValidatedInt("Enter Student ID to Search: ");
+
+        boolean found = false;
+
+        for (Student s : students) {
+
+            if (s.getId() == searchId) {
+                System.out.println("\nStudent Found:");
+                s.displayStudent();
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            System.out.println("Student Not Found.");
+        }
+    }
+
+    // ================= UPDATE STUDENT =================
+
+    public static void updateStudent() {
+
+        int updateId = getValidatedInt("Enter Student ID to Update: ");
+
+        boolean updated = false;
+
+        for (Student s : students) {
+
+            if (s.getId() == updateId) {
+
+                sc.nextLine(); // Clear Buffer
+
+                String name;
+
+                while (true) {
+
+                    System.out.print("Enter New Name: ");
+                    name = sc.nextLine();
+
+                    if (name.matches("[a-zA-Z ]+")) {
+                        break;
+                    } else {
+                        System.out.println("Invalid Name! Only Alphabets Allowed.");
+                    }
+                }
+
+                int age;
+
+                while (true) {
+
+                    age = getValidatedInt("Enter New Age: ");
+
+                    if (age >= 5 && age <= 100) {
+                        break;
+                    } else {
+                        System.out.println("Age Must Be Between 5 and 100.");
+                    }
+                }
+
+                sc.nextLine(); // Clear Buffer
+
+                System.out.print("Enter New Course: ");
+                String course = sc.nextLine();
+
+                double marks;
+
+                while (true) {
+
+                    marks = getValidatedDouble("Enter New Marks: ");
+
+                    if (marks >= 0 && marks <= 100) {
+                        break;
+                    } else {
+                        System.out.println("Marks Must Be Between 0 and 100.");
+                    }
+                }
+
+                s.setName(name);
+                s.setAge(age);
+                s.setCourse(course);
+                s.setMarks(marks);
+
+                System.out.println("Student Updated Successfully!");
+
+                updated = true;
+                break;
+            }
+        }
+
+        if (!updated) {
+            System.out.println("Student Not Found.");
+        }
+    }
+
+    // ================= DELETE STUDENT =================
+
+    public static void deleteStudent() {
+
+        int deleteId = getValidatedInt("Enter Student ID to Delete: ");
+
+        boolean deleted = false;
+
+        for (Student s : students) {
+
+            if (s.getId() == deleteId) {
+
+                students.remove(s);
+
+                System.out.println("Student Deleted Successfully!");
+
+                deleted = true;
+                break;
+            }
+        }
+
+        if (!deleted) {
+            System.out.println("Student Not Found.");
+        }
+    }
+
+    // ================= VALIDATED INTEGER INPUT =================
+
+    public static int getValidatedInt(String message) {
+
+        while (true) {
+
+            try {
+
+                System.out.print(message);
+
+                return sc.nextInt();
+
+            } catch (InputMismatchException e) {
+
+                System.out.println("Invalid Input! Please Enter Numbers Only.");
+
+                sc.nextLine();
+            }
+        }
+    }
+
+    // ================= VALIDATED DOUBLE INPUT =================
+
+    public static double getValidatedDouble(String message) {
+
+        while (true) {
+
+            try {
+
+                System.out.print(message);
+
+                return sc.nextDouble();
+
+            } catch (InputMismatchException e) {
+
+                System.out.println("Invalid Input! Please Enter Valid Decimal Numbers.");
+
+                sc.nextLine();
+            }
+        }
     }
 }
